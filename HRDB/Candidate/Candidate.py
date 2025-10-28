@@ -3,30 +3,57 @@ from .CandidateStatuses import CandidateStatus
 
 
 class Candidate:
-    def __init__(self, full_name: str, age: int, email: str, status: CandidateStatus):
-        if not self.check_validate(full_name, age, email, status):
-            raise TypeError("check_validate")
+    def __init__(self, full_name: str, age: int|str, email: str, status: str|CandidateStatus):
+        self.set_full_name(full_name)
+        self.set_age(age)
+        self.set_email(email)
+        self.set_status(status)
 
-        self.full_name = full_name
-        self.age = age
-        self.email = email
-        self.status = status
         self.__id = 1234567
 
+    def set_full_name(self, full_name: str):
+        if not isinstance(full_name, str):
+            raise TypeError("full_name must be str")
 
+        full_name = full_name.strip().replace("  ", " ").title()
 
+        if full_name.count(' ') != 2:
+            raise ValueError("full_name must contain 3 words")
 
+        self.full_name = full_name
 
-    @staticmethod
-    def check_validate(full_name: str, age: int, email: str, status: CandidateStatus.NEW):
-        return (
-            isinstance(full_name, str) and
-            isinstance(age, int) and
-            isinstance(email, str) and
-            isinstance(status, CandidateStatus) and
-            full_name.count(' ') == 2 and
-            0 < age < 100
-        )
+    def set_age(self, age: int|str):
+        if not isinstance(age, int|str) or (isinstance(age, str) and not age.isdigit()):
+            raise TypeError("age must be int or digits str")
+
+        age = int(age)
+
+        if not (0 < age < 100):
+            raise ValueError("age must be in interval 0 < age < 100")
+
+        self.age = age
+
+    def set_email(self, email: str):
+        if not isinstance(email, str):
+            raise TypeError("email must be str")
+
+        email = email.strip().lower()
+
+        self.email = email
+
+    def set_status(self, status: str|CandidateStatus):
+        if not isinstance(status, str|CandidateStatus):
+            raise TypeError("status must be str or CandidateStatus")
+
+        if isinstance(status, str):
+            status = status.strip().upper()
+
+            if status not in map(lambda x: x.name, CandidateStatus):
+                raise ValueError("status not in CandidateStatus")
+
+            status = CandidateStatus[status]
+
+        self.status = status
 
     def __repr__(self):
         return f"ID: {self.__id} | ФИО: {self.full_name} | Возраст: {self.age} | E-mail: {self.email} | Статус: {self.status.value}"

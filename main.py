@@ -16,6 +16,12 @@ def help():
 def add_candidate(*args):
     if len(args):
         company.add_candidate(*args)
+    else:
+        full_name = input("ФИО: ")
+        age = input("Возраст: ")
+        email = input("Почта: ")
+        status = input("Статус: ")
+        company.add_candidate(full_name, age, email, status)
 
 def print_candidates():
     print(company)
@@ -55,7 +61,9 @@ commands = {
 }
 
 
-commands["1"]("Свешникова Анна Александровна", 28, "anna@mail.com", HRDB.CandidateStatus.REJECTED)
+commands["1"]("Свешникова Анна Александровна", 28, "anna@mail.com", "rejected")
+commands["2"]()
+
 
 def main():
     while True:

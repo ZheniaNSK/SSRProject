@@ -22,9 +22,11 @@ class DataBase:
         self.__candidates = list()
 
 
-    def add_candidate(self, full_name: str, age: int, email: str, status: CandidateStatus = CandidateStatus.NEW):
-        self.__candidates.append(Candidate(full_name, age, email, status))
-
+    def add_candidate(self, full_name: str, age: int|str, email: str, status: CandidateStatus|str = CandidateStatus.NEW):
+        try:
+            self.__candidates.append(Candidate(full_name, age, email, status))
+        except Exception as e:
+            print(e)
 
 
 
