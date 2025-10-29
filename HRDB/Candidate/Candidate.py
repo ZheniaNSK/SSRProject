@@ -3,13 +3,19 @@ from .CandidateStatuses import CandidateStatus
 
 
 class Candidate:
-    def __init__(self, full_name: str, age: int|str, email: str, status: str|CandidateStatus):
+    def __init__(self, id: int, full_name: str, age: int|str, email: str, status: str|CandidateStatus):
+        self.__set_id(id)
+
         self.set_full_name(full_name)
         self.set_age(age)
         self.set_email(email)
         self.set_status(status)
 
-        self.__id = 1234567
+    def __set_id(self, id: int):
+        if not isinstance(id, int):
+            raise TypeError("id must be int")
+
+        self.__id = id
 
     def set_full_name(self, full_name: str):
         if not isinstance(full_name, str):
@@ -54,6 +60,15 @@ class Candidate:
             status = CandidateStatus[status]
 
         self.status = status
+
+    def __dict__(self):
+        return {
+            "id": self.__id,
+            "full_name": self.full_name,
+            "age": self.age,
+            "email": self.email,
+            "status": self.status.value
+        }
 
     def __repr__(self):
         return f"ID: {self.__id} | ФИО: {self.full_name} | Возраст: {self.age} | E-mail: {self.email} | Статус: {self.status.value}"
