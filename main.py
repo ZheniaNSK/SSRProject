@@ -36,15 +36,42 @@ def help(_):
 \t[8] Загрузить данные
 \t[9] Выход
 """)
+
 def add_candidate(company, *args):
+    errmsg = "Ошибка, попробуйте ещё"
+
     if len(args):
         company.add_candidate(*args)
     else:
-        full_name = input("Введите ФИО: ")
-        age = input("Введите возраст: ")
-        email = input("Введите почту: ")
-        status = input(f"Введите статус ({", ".join(list(map(lambda x: x.name.lower(), HRDB.CandidateStatus)))}): ")
-        company.add_candidate(full_name, age, email, status if len(status) else HRDB.CandidateStatus.NEW)
+        while True:
+            full_name = input("Введите ФИО: ")
+            if full_name == exit_command: return
+            if company.check_validate(full_name=full_name): break
+            print(errmsg)
+        while True:
+            age = input("Введите возраст: ")
+            if age == exit_command: return
+            if company.check_validate(age=age): break
+            print(errmsg)
+        while True:
+            email = input("Введите почту: ")
+            if email == exit_command: return
+            if company.check_validate(email=email): break
+            print(errmsg)
+        while True:
+            status = input(f"Введите статус ({", ".join(list(map(lambda x: x.name.lower(), HRDB.CandidateStatus)))}): ").strip()
+            if status == exit_command: return
+
+            if not status:
+                status = HRDB.CandidateStatus.NEW
+
+            if company.check_validate(status=status): break
+            print(errmsg)
+
+        if company.add_candidate(full_name, age, email, status):
+            print("Данные успешно записаны")
+        else:
+            print("Произошла ошибка при записи данных")
 
 def print_candidates(company):
     print(company)
@@ -54,6 +81,7 @@ def find_candidate(company):
     output_above_zero = "🔍 Найдено {} кандидата:"
 
     find_value = input("Введите имя или ID: ")
+    if find_value == exit_command: return
 
     if find_value.isdigit():
         find = company.get_candidate(int(find_value))
@@ -70,13 +98,12 @@ def find_candidate(company):
         else:
             print(output_zero)
 
-
-
 def filter_status(company):
     output_zero = "🔍 Найдено 0 кандидатов"
     output_above_zero = "🔍 Найдено {} кандидата:"
 
     find_value = input(f"Введите статус ({", ".join(list(map(lambda x: x.name.lower(), HRDB.CandidateStatus)))}): ")
+    if find_value == exit_command: return
 
     find = company.find_candidates_by_status(find_value.strip().lower())
 
@@ -86,10 +113,38 @@ def filter_status(company):
         print(output_zero)
 
 def edit_candidate(company):
-    pass
+    errmsg = "Ошибка, попробуйте ещё"
+
+    while True:
+        id = input("Введите id: ")
+        if id == exit_command: return
+        if company.check_id(id): break
+        print(errmsg)
+    while True:
+        field = input(f"Введите поле для редактирования ({", ".join(HRDB.HRDB.Candidate.fields(None))}): ").strip().lower()
+        if field == exit_command: return
+        if field in HRDB.HRDB.Candidate.fields(None): break
+        print(errmsg)
+    while True:
+        value = input(f"Введите новое значение: ")
+        if value == exit_command: return
+        if company.edit_candidate(id, field, value): break
+        print(errmsg)
+
+    print("Данные успешно изменены")
 
 def delete_candidate(company):
-    pass
+    errmsg = "Ошибка, попробуйте ещё"
+
+    while True:
+        id = input("Введите id: ")
+        if id == exit_command: return
+        if company.check_id(id) and company.del_candidate(id): break
+        print(errmsg)
+
+    print("Данные успешно удалены")
+
+
 
 def save_DB(company):
     company.save_data()
@@ -102,23 +157,22 @@ def exit(_):
 
 
 
-
-
-
-def main():
+def main(company):
     while True:
         command = input("Выберите действие (1-9): ")
+        if command == exit_command: return
+
         if command not in commands.keys():
             print(f"Действие \"{command}\" не найдено, введите \"help\" для справки")
         else:
             print('\n' * 5)
             if commands[command](company):
-                break
+                return
             print('\n')
 
 
 
-
+exit_command = "exit"
 
 commands = {
     "help": help,
@@ -139,10 +193,11 @@ db_path = f"{this_path()}DB.json"
 company = HRDB.DataBase("hr company", db_path, errors_path)
 
 
-
-commands["1"](company, "Свешникова Анна Александровна", 28, "anna@mail.com", "rejected")
+# commands["1"](company, "Свешникова Анна Александровна", 28, "anna@mail.com", "rejected")
+commands["8"](company)
 commands["2"](company)
 
 
 
-main()
+
+main(company)

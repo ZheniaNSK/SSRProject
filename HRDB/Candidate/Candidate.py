@@ -3,7 +3,7 @@ from .CandidateStatuses import CandidateStatus
 
 
 class Candidate:
-    def __init__(self, id: int, full_name: str, age: int|str, email: str, status: str|CandidateStatus):
+    def __init__(self, id: int|str, full_name: str, age: int|str, email: str, status: str|CandidateStatus):
         self.__set_id(id)
 
         self.set_full_name(full_name)
@@ -11,55 +11,79 @@ class Candidate:
         self.set_email(email)
         self.set_status(status)
 
-    def __set_id(self, id: int):
-        if not isinstance(id, int):
-            raise TypeError("id must be int")
 
-        self.__id = id
+    def fields(self):
+        if not self:
+            return ("name", "age", "email", "status")
+        return { "name": self.set_full_name, "age": self.set_age, "email": self.set_email, "status": self.set_status }
+
+    def __set_id(self, id: int|str):
+        self.__id = self.check_validate(id=id)
 
     def set_full_name(self, full_name: str):
-        if not isinstance(full_name, str):
-            raise TypeError("full_name must be str")
-
-        full_name = full_name.strip().replace("  ", " ").title()
-
-        if full_name.count(' ') != 2:
-            raise ValueError("full_name must contain 3 words")
-
-        self.full_name = full_name
+        self.full_name = self.check_validate(full_name=full_name)
 
     def set_age(self, age: int|str):
-        if not isinstance(age, int|str) or (isinstance(age, str) and not age.isdigit()):
-            raise TypeError("age must be int or digits str")
-
-        age = int(age)
-
-        if not (0 < age < 100):
-            raise ValueError("age must be in interval 0 < age < 100")
-
-        self.age = age
+        self.age = self.check_validate(age=age)
 
     def set_email(self, email: str):
-        if not isinstance(email, str):
-            raise TypeError("email must be str")
-
-        email = email.strip().lower()
-
-        self.email = email
+        self.email = self.check_validate(email=email)
 
     def set_status(self, status: str|CandidateStatus):
-        if not isinstance(status, str|CandidateStatus):
-            raise TypeError("status must be str or CandidateStatus")
+        self.status = self.check_validate(status=status)
 
-        if isinstance(status, str):
-            status = status.strip().upper()
 
-            if status not in map(lambda x: x.name, CandidateStatus):
-                raise ValueError("status not in CandidateStatus")
 
-            status = CandidateStatus[status]
+    @staticmethod
+    def check_validate(**kwargs):
+        if kwargs.get("id", None) != None:
+            if not (isinstance(kwargs["id"], int) or (isinstance(kwargs["id"], str) and kwargs["id"].isdigit())):
+                raise TypeError("id must be int or digit str")
+            return kwargs["id"]
 
-        self.status = status
+        elif kwargs.get("full_name", None) != None:
+            if not isinstance(kwargs["full_name"], str):
+                raise TypeError("full_name must be str")
+
+            kwargs["full_name"] = kwargs["full_name"].strip().replace("  ", " ").title()
+
+            if not kwargs["full_name"].replace('-', '').replace(' ', '').isalpha():
+                raise ValueError("full_name must contain only letters or hyphens")
+
+            if kwargs["full_name"].count(' ') != 2:
+                raise ValueError("full_name must contain 3 words")
+
+            return kwargs["full_name"]
+
+        elif kwargs.get("age", None) != None:
+            if not (isinstance(kwargs["age"], int) or (isinstance(kwargs["age"], str) and kwargs["age"].isdigit() and len(kwargs["age"]))):
+                raise TypeError("age must be int or digits str")
+
+            kwargs["age"] = int(kwargs["age"])
+
+            if not (0 < kwargs["age"] < 100):
+                raise ValueError("age must be in interval 0 < age < 100")
+
+            return kwargs["age"]
+
+        elif kwargs.get("email", None) != None:
+            if not isinstance(kwargs["email"], str) or not len(kwargs["email"]):
+                raise TypeError("email must be str")
+
+            return kwargs["email"].strip().lower()
+
+        elif kwargs.get("status", None):
+            if not isinstance(kwargs["status"], str|CandidateStatus):
+                raise TypeError("status must be str or CandidateStatus")
+
+            if isinstance(kwargs["status"], str):
+                kwargs["status"] = kwargs["status"].strip().upper()
+
+                if kwargs["status"] not in map(lambda x: x.name, CandidateStatus):
+                    raise ValueError("status not in CandidateStatus")
+
+                kwargs["status"] = CandidateStatus[kwargs["status"]]
+            return kwargs["status"]
 
     def __dict__(self):
         return {

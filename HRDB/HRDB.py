@@ -8,7 +8,7 @@ class DataBase:
 
     def __new__(cls, *args, **kwargs):
         if not cls.instance:
-            cls.instance = super(DataBase, cls).__new__(cls)
+            cls.instance = super().__new__(cls)
 
         return cls.instance
 
@@ -26,9 +26,22 @@ class DataBase:
         try:
             self.__candidates[self.__last_id] = Candidate(self.__last_id, full_name, age, email, status)
             self.__last_id += 1
-        except Exception as e:
-            print(e)
-            self.__errors.add_error(e)
+
+            return True
+        except Exception as err:
+            print(err)
+            self.__errors.add_error(err)
+
+            return False
+
+    def del_candidate(self, id: int|str):
+        if not self.check_id(id):
+            return False
+
+        id = int(id)
+
+        del self.__candidates[id]
+        return True
 
     def get_candidate(self, id: int)->Candidate|None:
         if isinstance(id, int):
@@ -37,6 +50,30 @@ class DataBase:
             err = "id must be int in get_candidate"
             print(err)
             self.__errors.add_error(err)
+
+    def edit_candidate(self, id: int|str, field: str, value):
+        if not self.check_id(id):
+            return False
+
+        id = int(id)
+
+        if field not in Candidate.fields(None):
+            err = f"field not in {Candidate.fields(None)}"
+            print(err)
+            self.__errors.add_error(err)
+            return False
+
+        try:
+            Candidate.fields(self.__candidates[id])[field](value)
+
+            return True
+        except Exception as err:
+            print(err)
+            self.__errors.add_error(err)
+
+            return False
+
+
 
     def find_candidates_by_name(self, name: str):
         if isinstance(name, str):
@@ -79,6 +116,29 @@ class DataBase:
 
         return False
 
+    def check_id(self, id: int)->bool:
+        if not (isinstance(id, int) or (isinstance(id, str) and id.isdigit())):
+            err = "id must be int or digit str for delete"
+            print(err)
+            self.__errors.add_error(err)
+            return False
+
+        if int(id) not in self.__candidates.keys():
+            err = "id not in candidates for delete"
+            print(err)
+            self.__errors.add_error(err)
+            return False
+
+        return True
+
+    def check_validate(self, **kwargs):
+        try:
+            Candidate.check_validate(**kwargs)
+            return True
+        except Exception as err:
+            print(err)
+            self.__errors.add_error(err)
+            return False
 
     def __repr__(self):
         return f"Все кандидаты:" + "".join((f"\n\t{i};" for i in self.__candidates.values()))
