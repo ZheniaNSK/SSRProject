@@ -1,1 +1,1 @@
-from .HRDB import DataBase, CandidateStatus
+from .HRDB import DataBase, Candidate, CandidateStatus

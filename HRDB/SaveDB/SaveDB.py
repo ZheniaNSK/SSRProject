@@ -27,6 +27,8 @@ class DB:
         except Exception as e:
             print(f"CRIT ERROR: failed to load data base {self.__db_path}\nMORE LOGS:\n{e}")
 
+            return False
+
 
     def save_db(self, company_name, last_id, candidates):
         try:
@@ -42,5 +44,9 @@ class DB:
             ))
 
             file.close()
+
+            return True
         except Exception as e:
             print(f"CRIT ERROR: failed to save data base {self.__db_path}\nMORE LOGS:\n{e}")
+
+            return False

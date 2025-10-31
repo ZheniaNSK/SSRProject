@@ -45,7 +45,7 @@ class Candidate:
             if not isinstance(kwargs["full_name"], str):
                 raise TypeError("full_name must be str")
 
-            kwargs["full_name"] = kwargs["full_name"].strip().replace("  ", " ").title()
+            kwargs["full_name"] = kwargs["full_name"].strip().title()
 
             if not kwargs["full_name"].replace('-', '').replace(' ', '').isalpha():
                 raise ValueError("full_name must contain only letters or hyphens")

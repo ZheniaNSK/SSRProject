@@ -25,8 +25,12 @@ class Errors:
             file.close()
 
             self.clear()
+
+            return True
         except Exception as e:
             print(f"CRIT ERROR: no access to the file {self.__errors_path}\nMORE LOGS:\n{e}")
+
+            return False
 
     def clear(self):
         self.__errors.clear()

@@ -1,5 +1,6 @@
 import HRDB
 import sys
+import os
 
 
 
@@ -133,7 +134,7 @@ def edit_candidate(company):
 
     print("Данные успешно изменены")
 
-def delete_candidate(company):
+def delete_candidate(company, **kwargs):
     errmsg = "Ошибка, попробуйте ещё"
 
     while True:
@@ -147,10 +148,17 @@ def delete_candidate(company):
 
 
 def save_DB(company):
-    company.save_data()
+    if company.save_data():
+        print("Данные успешно сохранены")
+    else:
+        print("Произошла ошибка при сохранении данных")
+
 
 def load_DB(company):
-    company.load_data()
+    if company.load_data():
+        print("Данные успешно загружены")
+    else:
+        print("Произошла ошибка при загрузке данных")
 
 def exit(_):
     return True
@@ -158,14 +166,17 @@ def exit(_):
 
 
 def main(company):
+    os.system("cls")
+
     while True:
-        command = input("Выберите действие (1-9): ")
+        command = input(main_input_text)
         if command == exit_command: return
 
         if command not in commands.keys():
             print(f"Действие \"{command}\" не найдено, введите \"help\" для справки")
         else:
-            print('\n' * 5)
+            os.system("cls")
+            print(main_input_text + command + '\n')
             if commands[command](company):
                 return
             print('\n')
@@ -173,6 +184,7 @@ def main(company):
 
 
 exit_command = "exit"
+main_input_text = "Выберите действие (1-9): "
 
 commands = {
     "help": help,
@@ -194,10 +206,9 @@ company = HRDB.DataBase("hr company", db_path, errors_path)
 
 
 # commands["1"](company, "Свешникова Анна Александровна", 28, "anna@mail.com", "rejected")
-commands["8"](company)
-commands["2"](company)
+# commands["8"](company)
 
 
 
-
-main(company)
+if __name__ == "__main__":
+    main(company)

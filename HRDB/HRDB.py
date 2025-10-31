@@ -51,6 +51,7 @@ class DataBase:
             print(err)
             self.__errors.add_error(err)
 
+
     def edit_candidate(self, id: int|str, field: str, value):
         if not self.check_id(id):
             return False
@@ -102,9 +103,7 @@ class DataBase:
             self.__errors.add_error(err)
 
     def save_data(self):
-        self.__db.save_db(self.company_name, self.__last_id, self.__candidates)
-
-        self.__errors.save_errors()
+        return self.__db.save_db(self.company_name, self.__last_id, self.__candidates) and self.__errors.save_errors()
 
     def load_data(self):
         data = self.__db.load_db()
